@@ -96,19 +96,13 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // --- AUDIO SYSTEM ---
         const bgm = new Audio();
-        
-        // ************************************************************
-        // CHANGE YOUR MP3 FILENAME HERE:
-        // Place your mp3 in the same folder as this file.
         bgm.src = 'your-song-filename.mp3'; 
-        // ************************************************************
-        
-        bgm.loop = true; // Keeps the music playing if they take a long time
+        bgm.loop = true;
 
         let state = {
             active: false,
+            gameStarted: false, // NEW FLAG: Tracks if the first move was made
             level: 1,
             floor: 0,
             streak: 0,
@@ -137,11 +131,9 @@
             document.getElementById('start-overlay').style.display = 'none';
             generatePlatforms();
             state.active = true;
-            state.startTime = Date.now();
+            state.gameStarted = false; // Reset start flag
             
-            // Start Music on Initialization
-            bgm.play().catch(e => console.log("Audio failed to load or autoplay blocked", e));
-            
+            bgm.play().catch(e => console.log("Audio blocked", e));
             requestAnimationFrame(loop);
         }
 
@@ -165,6 +157,12 @@
             if (e.key === 'ArrowRight') input = 1;
 
             if (input !== -1) {
+                // START TIMER ON FIRST KEY PRESS
+                if (!state.gameStarted) {
+                    state.startTime = Date.now();
+                    state.gameStarted = true;
+                }
+
                 const nextFloorIdx = state.floor + 1;
                 const target = state.platforms[nextFloorIdx];
 
@@ -187,6 +185,8 @@
                     state.targetX = -150;
                     state.targetCamY = 0;
                     state.shake = 30;
+                    // Reset timer if they fail? (Optional: remove the next line to keep time running)
+                    state.gameStarted = false; 
                 }
                 updateUI();
             }
@@ -217,9 +217,6 @@
         function triggerWin() {
             state.active = false;
             const timeTaken = ((Date.now() - state.startTime) / 1000).toFixed(2);
-            
-            // Optional: Pause music on win
-            // bgm.pause();
 
             setTimeout(() => {
                 const modal = document.getElementById('modal-overlay');
@@ -241,9 +238,8 @@
             state.camY = 0;
             state.playerX = -150;
             state.active = true;
-            state.startTime = Date.now();
+            state.gameStarted = false; // Reset for next level
             
-            // Keep music playing or restart it
             bgm.currentTime = 0; 
             bgm.play();
 
@@ -269,7 +265,12 @@
             state.ghosts.unshift({x: state.playerX, y: 0});
             if (state.ghosts.length > 40) state.ghosts.pop(); 
 
-            document.getElementById('time-txt').innerText = ((Date.now() - state.startTime) / 1000).toFixed(2) + "s";
+            // ONLY UPDATE TIMER IF GAME HAS STARTED
+            if (state.gameStarted) {
+                document.getElementById('time-txt').innerText = ((Date.now() - state.startTime) / 1000).toFixed(2) + "s";
+            } else {
+                document.getElementById('time-txt').innerText = "0.00s";
+            }
 
             ctx.save();
             ctx.translate(canvas.width/2 + (Math.random()-0.5)*state.shake, canvas.height * 0.75 + (Math.random()-0.5)*state.shake);
