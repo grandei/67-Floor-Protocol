@@ -16,8 +16,7 @@
         }
 
         #ui-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 10;
+            position: fixed; inset: 0; pointer-events: none; z-index: 10;
             display: flex; flex-direction: column; justify-content: space-between;
             padding: 40px; box-sizing: border-box;
         }
@@ -27,26 +26,42 @@
         .accent-blue { color: var(--neon-blue); }
         .accent-pink { color: var(--neon-pink); }
 
-        #modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px);
-            z-index: 100; display: none; align-items: center; justify-content: center;
-            opacity: 0; transition: opacity 0.8s ease;
-        }
-
-        .modal-content {
-            background: rgba(20, 20, 20, 0.8);
-            border: 1px solid #333; padding: 60px; text-align: center;
-            color: #fff; box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            max-width: 500px; width: 90%;
-        }
-
+        /* BUTTONS */
         .btn-next {
             background: #fff; color: #000; border: none;
             padding: 15px 40px; font-family: 'Syncopate';
-            cursor: pointer; margin-top: 30px; transition: 0.3s;
+            cursor: pointer; transition: 0.3s; pointer-events: auto;
         }
-        .btn-next:hover { background: var(--neon-blue); transform: scale(1.1); }
+        .btn-next:hover { background: var(--neon-blue); transform: scale(1.05); }
+
+        .btn-ghost {
+            background: transparent; color: #666; border: 1px solid #333;
+            padding: 8px 20px; font-family: 'JetBrains Mono'; font-size: 0.7rem;
+            cursor: pointer; transition: 0.3s; letter-spacing: 2px; pointer-events: auto;
+        }
+        .btn-ghost:hover { color: #fff; border-color: #fff; }
+
+        #ingame-menu-btn { position: absolute; bottom: 110px; left: 40px; display: none; }
+
+        /* MODALS */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(15px); z-index: 100;
+            display: none; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.4s ease;
+        }
+
+        .modal-content {
+            background: rgba(10, 10, 10, 0.98); border: 1px solid #222;
+            padding: 40px; text-align: center; color: #fff; width: 90%; max-width: 500px;
+        }
+
+        .setting-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; font-size: 0.6rem; color: #555; margin-bottom: 5px; text-transform: uppercase; }
+        select, input[type="text"] {
+            width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 10px; font-family: 'JetBrains Mono'; outline: none;
+        }
+        input[type="color"] { width: 100%; height: 40px; background: none; border: 1px solid #333; cursor: pointer; }
 
         canvas { display: block; }
     </style>
@@ -55,39 +70,72 @@
 
     <div id="ui-layer">
         <div style="display: flex; justify-content: space-between;">
-            <div>
-                <span class="stat-label">System Level</span>
-                <span class="stat-val accent-blue" id="lvl-txt">01</span>
-            </div>
-            <div style="text-align: right;">
-                <span class="stat-label">Floor</span>
-                <span class="stat-val" id="floor-txt">01 / 67</span>
-            </div>
+            <div><span class="stat-label">System Level</span><span class="stat-val accent-blue" id="lvl-txt">01</span></div>
+            <div style="text-align: right;"><span class="stat-label">Floor</span><span class="stat-val" id="floor-txt">01 / 67</span></div>
         </div>
+
+        <button id="ingame-menu-btn" class="btn-ghost" onclick="togglePause()">[ MENU ]</button>
+
         <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-            <div>
-                <span class="stat-label">Active Streak</span>
-                <span class="stat-val accent-pink" id="streak-txt">0</span>
-            </div>
-            <div style="text-align: right;">
-                <span class="stat-label">Timer</span>
-                <span class="stat-val" id="time-txt">0.00s</span>
-            </div>
+            <div><span class="stat-label">Active Streak</span><span class="stat-val accent-pink" id="streak-txt">0</span></div>
+            <div style="text-align: right;"><span class="stat-label">Timer</span><span class="stat-val" id="time-txt">0.00s</span></div>
         </div>
     </div>
 
-    <div id="modal-overlay">
+    <div id="settings-overlay" class="modal-overlay">
         <div class="modal-content">
-            <h2 id="modal-title" style="font-family: 'Syncopate'; font-size: 2rem; margin: 0;">LEVEL COMPLETE</h2>
-            <p id="modal-stats" style="color: #888; margin: 20px 0; line-height: 1.6;"></p>
+            <h2 style="font-family: 'Syncopate'; margin-top:0;">PROTOCOL CONFIG</h2>
+            <div class="setting-group"><label>Music Filename</label><input type="text" id="cfg-music" value="your-song-filename.mp3"></div>
+            <div class="setting-group">
+                <label>Core Shape</label>
+                <select id="cfg-shape">
+                    <option value="square">BLOCK_CORE</option>
+                    <option value="circle">ORB_CORE</option>
+                    <option value="diamond">PRISM_CORE</option>
+                </select>
+            </div>
+            <div class="setting-group">
+                <label>Tail Pattern</label>
+                <select id="cfg-tail">
+                    <option value="solid">SOLID_TRAIL</option>
+                    <option value="ghost">GHOST_TRAIL</option>
+                    <option value="wire">WIRE_TRAIL</option>
+                </select>
+            </div>
+            <div class="setting-group">
+                <label>Particle Physics</label>
+                <select id="cfg-particles">
+                    <option value="square">DIGITAL_DEBRIS</option>
+                    <option value="line">VELOCITY_LINES</option>
+                    <option value="dust">NEON_DUST</option>
+                </select>
+            </div>
+            <div class="setting-group"><label>Theme Color</label><input type="color" id="cfg-color1" value="#00f2ff"></div>
+            <button class="btn-next" onclick="saveSettings()">SAVE & RESET</button>
+        </div>
+    </div>
+
+    <div id="pause-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <h2 style="font-family: 'Syncopate';">PAUSED</h2>
+            <button class="btn-next" style="width:100%; margin-bottom:10px;" onclick="togglePause()">RESUME</button>
+            <button class="btn-ghost" style="width:100%;" onclick="quitToMenu()">TERMINATE_TO_MENU</button>
+        </div>
+    </div>
+
+    <div id="win-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <h2 style="font-family: 'Syncopate';">LEVEL COMPLETE</h2>
+            <p id="modal-stats" style="color: #888; margin: 20px 0;"></p>
             <button class="btn-next" onclick="nextLevel()">NEXT_FLOOR</button>
         </div>
     </div>
 
-    <div id="start-overlay" style="position:fixed; inset:0; background:#000; z-index:200; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; cursor:pointer;" onclick="initGame()">
+    <div id="start-overlay" style="position:fixed; inset:0; background:#000; z-index:200; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff;">
         <h1 style="font-family:'Syncopate'; font-size:5rem; margin:0;">67</h1>
-        <p style="letter-spacing:8px; color:var(--neon-blue);">FLOOR PROTOCOL</p>
-        <p style="opacity:0.3; font-size:0.7rem;">[ INITIALIZE ]</p>
+        <p style="letter-spacing:8px; color:var(--neon-blue); margin-bottom:40px;">FLOOR PROTOCOL</p>
+        <button class="btn-next" onclick="initGame()">INITIALIZE</button>
+        <button class="btn-ghost" style="margin-top:15px;" onclick="openSettings()">CONFIG_MENU</button>
     </div>
 
     <canvas id="gameCanvas"></canvas>
@@ -95,111 +143,135 @@
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        
         const bgm = new Audio();
-        bgm.src = 'your-song-filename.mp3'; 
         bgm.loop = true;
 
         let state = {
-            active: false,
-            gameStarted: false, // NEW FLAG: Tracks if the first move was made
-            level: 1,
-            floor: 0,
-            streak: 0,
-            maxStreak: 0,
-            startTime: 0,
-            platforms: [],
-            particles: [],
-            ghosts: [], 
-            celebs: [],
-            camY: 0,
-            targetCamY: 0,
-            playerX: -150,
-            targetX: -150,
-            shake: 0,
-            tick: 0
+            active: false, paused: false, gameStarted: false,
+            level: 1, floor: 0, streak: 0, maxStreak: 0,
+            startTime: 0, pauseStartTime: 0, totalPauseOffset: 0,
+            platforms: [], particles: [], ghosts: [], celebs: [],
+            camY: 0, targetCamY: 0, playerX: -150, playerY: 0, targetX: -150,
+            shake: 0, tick: 0,
+            animType: 'hop', hopProgress: 0,
+            config: { music: 'your-song-filename.mp3', shape: 'square', tail: 'solid', particles: 'square', color1: '#00f2ff' }
         };
 
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.onresize = resize;
         resize();
 
+        function openSettings() {
+            const el = document.getElementById('settings-overlay');
+            el.style.display = 'flex';
+            setTimeout(() => el.style.opacity = '1', 10);
+        }
+
+        function saveSettings() {
+            state.config.music = document.getElementById('cfg-music').value;
+            state.config.shape = document.getElementById('cfg-shape').value;
+            state.config.tail = document.getElementById('cfg-tail').value;
+            state.config.particles = document.getElementById('cfg-particles').value;
+            state.config.color1 = document.getElementById('cfg-color1').value;
+            document.documentElement.style.setProperty('--neon-blue', state.config.color1);
+            
+            const el = document.getElementById('settings-overlay');
+            el.style.opacity = '0';
+            setTimeout(() => {
+                el.style.display = 'none';
+                quitToMenu(); // Force reset to main menu with new settings
+            }, 400);
+        }
+
+        function togglePause() {
+            if (!state.active && !state.paused) return;
+            state.paused = !state.paused;
+            const el = document.getElementById('pause-overlay');
+            if (state.paused) {
+                state.pauseStartTime = Date.now();
+                el.style.display = 'flex';
+                setTimeout(() => el.style.opacity = '1', 10);
+                bgm.pause();
+            } else {
+                state.totalPauseOffset += (Date.now() - state.pauseStartTime);
+                el.style.opacity = '0';
+                setTimeout(() => el.style.display = 'none', 400);
+                bgm.play();
+            }
+        }
+
+        function quitToMenu() {
+            // Full Reset Logic
+            state.active = false; state.paused = false; state.gameStarted = false;
+            state.floor = 0; state.streak = 0; state.maxStreak = 0;
+            state.camY = 0; state.targetCamY = 0; state.playerX = -150; state.targetX = -150;
+            state.totalPauseOffset = 0; state.ghosts = []; state.particles = [];
+            
+            bgm.pause(); bgm.currentTime = 0;
+            document.getElementById('pause-overlay').style.display = 'none';
+            document.getElementById('ingame-menu-btn').style.display = 'none';
+            document.getElementById('start-overlay').style.display = 'flex';
+            updateUI();
+        }
+
         function initGame() {
             document.getElementById('start-overlay').style.display = 'none';
+            document.getElementById('ingame-menu-btn').style.display = 'block';
+            bgm.src = state.config.music;
             generatePlatforms();
             state.active = true;
-            state.gameStarted = false; // Reset start flag
-            
-            bgm.play().catch(e => console.log("Audio blocked", e));
+            state.gameStarted = false;
+            bgm.play().catch(() => {});
             requestAnimationFrame(loop);
         }
 
         function generatePlatforms() {
             state.platforms = [];
-            for (let i = 0; i <= 67; i++) {
-                state.platforms.push({
-                    id: i + 1,
-                    side: Math.random() > 0.5 ? 1 : 0,
-                    y: -(i * 180)
-                });
+            for (let i = 0; i < 67; i++) {
+                state.platforms.push({ id: i + 1, side: Math.random() > 0.5 ? 1 : 0, y: -(i * 180) });
             }
             state.platforms[0].side = 0; 
         }
 
         window.addEventListener('keydown', (e) => {
-            if (!state.active) return;
-
-            let input = -1;
-            if (e.key === 'ArrowLeft') input = 0;
-            if (e.key === 'ArrowRight') input = 1;
-
+            if (!state.active || state.paused) return;
+            let input = (e.key === 'ArrowLeft') ? 0 : (e.key === 'ArrowRight' ? 1 : -1);
             if (input !== -1) {
-                // START TIMER ON FIRST KEY PRESS
-                if (!state.gameStarted) {
-                    state.startTime = Date.now();
-                    state.gameStarted = true;
-                }
-
+                if (!state.gameStarted) { state.startTime = Date.now(); state.gameStarted = true; }
                 const nextFloorIdx = state.floor + 1;
-                const target = state.platforms[nextFloorIdx];
+                if (nextFloorIdx >= 67) return;
 
-                if (input === target.side) {
+                if (input === state.platforms[nextFloorIdx].side) {
+                    const isNewSide = (input === 0 && state.targetX !== -150) || (input === 1 && state.targetX !== 150);
+                    
+                    state.animType = isNewSide ? 'arch' : 'hop';
+                    if (!isNewSide) state.hopProgress = 1.0; 
+
                     state.floor = nextFloorIdx;
                     state.streak++;
                     if (state.streak > state.maxStreak) state.maxStreak = state.streak;
                     state.targetX = (input === 0) ? -150 : 150;
                     state.targetCamY = state.floor * 180;
-                    state.shake = 12;
+                    state.shake = 10;
                     
                     spawnGlitter(state.targetX, 0, input);
-                    if (state.streak === 6) spawnCeleb("6", 0.15);
-                    if (state.streak === 7) spawnCeleb("7", 0.85);
-
                     if (state.floor === 66) triggerWin();
                 } else {
-                    state.floor = 0;
-                    state.streak = 0;
-                    state.targetX = -150;
-                    state.targetCamY = 0;
-                    state.shake = 30;
-                    // Reset timer if they fail? (Optional: remove the next line to keep time running)
-                    state.gameStarted = false; 
+                    state.floor = 0; state.streak = 0; state.targetX = -150; state.targetCamY = 0; state.shake = 25;
+                    state.animType = 'hop'; state.hopProgress = 1.0;
                 }
                 updateUI();
             }
         });
 
         function spawnGlitter(x, y, side) {
-            for(let i=0; i<20; i++) {
+            const count = state.config.particles === 'dust' ? 40 : 20;
+            for(let i=0; i<count; i++) {
                 state.particles.push({
                     x, y,
                     vx: (side === 0 ? -1 : 1) * Math.random() * 15,
                     vy: (Math.random() - 0.5) * 15,
-                    life: 1.0,
-                    color: side === 0 ? '#00f2ff' : '#ff007b'
+                    life: 1.0, color: side === 0 ? state.config.color1 : '#ff007b'
                 });
             }
         }
@@ -208,138 +280,117 @@
             document.getElementById('lvl-txt').innerText = state.level.toString().padStart(2, '0');
             document.getElementById('floor-txt').innerText = `${(state.floor + 1).toString().padStart(2, '0')} / 67`;
             document.getElementById('streak-txt').innerText = state.streak;
-        }
-
-        function spawnCeleb(txt, xPct) {
-            state.celebs.push({ txt, x: canvas.width * xPct, y: canvas.height / 2, alpha: 1, s: 1 });
+            if (!state.gameStarted) document.getElementById('time-txt').innerText = "0.00s";
         }
 
         function triggerWin() {
             state.active = false;
-            const timeTaken = ((Date.now() - state.startTime) / 1000).toFixed(2);
-
+            document.getElementById('ingame-menu-btn').style.display = 'none';
+            const finalTime = (((Date.now() - state.startTime) - state.totalPauseOffset) / 1000).toFixed(2);
             setTimeout(() => {
-                const modal = document.getElementById('modal-overlay');
-                const stats = document.getElementById('modal-stats');
-                modal.style.display = 'flex';
-                setTimeout(() => modal.style.opacity = '1', 10);
-                
-                stats.innerHTML = `LEVEL ${state.level} COMPLETE<br>TIME: ${timeTaken}s<br>MAX STREAK: ${state.maxStreak}`;
-            }, 1200); 
+                const el = document.getElementById('win-overlay');
+                document.getElementById('modal-stats').innerHTML = `TIME: ${finalTime}s<br>STREAK: ${state.maxStreak}`;
+                el.style.display = 'flex';
+                setTimeout(() => el.style.opacity = '1', 10);
+            }, 800);
         }
 
         function nextLevel() {
             state.level++;
-            state.floor = 0;
-            state.streak = 0;
-            state.maxStreak = 0;
-            state.targetX = -150;
-            state.targetCamY = 0;
-            state.camY = 0;
-            state.playerX = -150;
-            state.active = true;
-            state.gameStarted = false; // Reset for next level
-            
-            bgm.currentTime = 0; 
-            bgm.play();
-
-            document.getElementById('modal-overlay').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('modal-overlay').style.display = 'none';
-                generatePlatforms();
-                updateUI();
-            }, 800);
+            document.getElementById('win-overlay').style.display = 'none';
+            initGame();
         }
 
         function loop() {
-            if (!state.active && document.getElementById('modal-overlay').style.display === 'none') return;
-            state.tick++;
+            if (!state.paused) {
+                state.tick++;
+                state.camY += (state.targetCamY - state.camY) * 0.15;
+                state.playerX += (state.targetX - state.playerX) * 0.18;
+
+                if (state.animType === 'arch') {
+                    let jumpDist = Math.abs(state.targetX - state.playerX);
+                    let jumpProgress = 1 - (jumpDist / 300);
+                    state.playerY = -150 * 4 * jumpProgress * (1 - jumpProgress);
+                    if (jumpDist < 1) state.animType = 'hop';
+                } else {
+                    state.playerY = -70 * Math.sin(state.hopProgress * Math.PI);
+                    state.hopProgress *= 0.88; 
+                }
+
+                if (state.shake > 0) state.shake *= 0.9;
+                state.ghosts.unshift({x: state.playerX, y: state.playerY});
+                if (state.ghosts.length > 30) state.ghosts.pop();
+
+                if (state.gameStarted && state.active) {
+                    const curTime = (((Date.now() - state.startTime) - state.totalPauseOffset) / 1000).toFixed(2);
+                    document.getElementById('time-txt').innerText = curTime + "s";
+                }
+            }
 
             ctx.fillStyle = "#000";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            state.camY += (state.targetCamY - state.camY) * 0.15;
-            state.playerX += (state.targetX - state.playerX) * 0.2;
-            if (state.shake > 0) state.shake *= 0.9;
-
-            state.ghosts.unshift({x: state.playerX, y: 0});
-            if (state.ghosts.length > 40) state.ghosts.pop(); 
-
-            // ONLY UPDATE TIMER IF GAME HAS STARTED
-            if (state.gameStarted) {
-                document.getElementById('time-txt').innerText = ((Date.now() - state.startTime) / 1000).toFixed(2) + "s";
-            } else {
-                document.getElementById('time-txt').innerText = "0.00s";
-            }
-
             ctx.save();
             ctx.translate(canvas.width/2 + (Math.random()-0.5)*state.shake, canvas.height * 0.75 + (Math.random()-0.5)*state.shake);
-
+            
+            // Draw Platforms
             state.platforms.forEach((p, i) => {
                 const drawY = p.y + state.camY;
                 if (drawY > -canvas.height && drawY < 400) {
                     const xPos = (p.side === 0) ? -280 : 80;
                     const isTarget = (i === state.floor + 1);
-                    const isCurrent = (i === state.floor);
+                    ctx.fillStyle = isTarget ? "#fff" : (i === state.floor ? "#fff" : "#1a1a1a");
+                    ctx.fillRect(xPos, drawY, 200, isTarget ? 10 : 6);
 
-                    if (isTarget) {
-                        const pulse = Math.sin(state.tick * 0.1) * 4;
-                        ctx.shadowBlur = 15 + pulse;
-                        ctx.shadowColor = p.side === 0 ? "#00f2ff" : "#ff007b";
-                        ctx.fillStyle = "#fff";
-                        ctx.fillRect(xPos - pulse/2, drawY, 200 + pulse, 12);
-                        ctx.font = "bold 20px Syncopate";
-                        ctx.fillText(p.id, xPos + 85, drawY - 15);
-                    } else {
-                        ctx.shadowBlur = 0;
-                        ctx.fillStyle = isCurrent ? "#fff" : "#1a1a1a";
-                        ctx.fillRect(xPos, drawY, 200, 6);
-                    }
+                    // Floor Numbers
+                    ctx.fillStyle = (i === state.floor) ? "#fff" : "#333";
+                    ctx.font = "bold 12px 'JetBrains Mono'";
+                    ctx.textAlign = "center";
+                    ctx.fillText(p.id.toString().padStart(2, '0'), xPos + 100, drawY + 25);
                 }
             });
 
+            // Draw Tail
             state.ghosts.forEach((g, i) => {
                 const trailProgress = i / state.ghosts.length;
                 ctx.globalAlpha = (0.4) * (1 - trailProgress); 
-                ctx.fillStyle = state.targetX < 0 ? "#00f2ff" : "#ff007b";
-                const baseSize = 50;
-                const tipSize = 2;
-                const currentSize = baseSize - ((baseSize - tipSize) * trailProgress);
-                const offset = currentSize / 2;
-                ctx.fillRect(g.x - offset, -5 - offset, currentSize, currentSize);
+                ctx.fillStyle = state.targetX < 0 ? state.config.color1 : "#ff007b";
+                
+                if(state.config.tail === 'solid' || state.config.tail === 'ghost') {
+                    const size = state.config.tail === 'solid' ? 45 - (40 * trailProgress) : 20;
+                    ctx.fillRect(g.x - size/2, g.y - 15 - size/2, size, size);
+                } else if (state.config.tail === 'wire') {
+                    ctx.lineWidth = 1; ctx.strokeStyle = ctx.fillStyle;
+                    ctx.strokeRect(g.x - 20, g.y - 35, 40, 40);
+                }
             });
 
-            ctx.globalAlpha = 1;
-            ctx.shadowBlur = 25;
-            ctx.shadowColor = state.targetX < 0 ? "#00f2ff" : "#ff007b";
+            // Draw Character Core
+            ctx.globalAlpha = 1; ctx.shadowBlur = 25;
+            ctx.shadowColor = state.targetX < 0 ? state.config.color1 : "#ff007b";
             ctx.fillStyle = "#fff";
-            ctx.fillRect(state.playerX - 25, -30, 50, 50);
+            const py = state.playerY - 15;
+            if (state.config.shape === 'circle') {
+                ctx.beginPath(); ctx.arc(state.playerX, py, 22, 0, Math.PI*2); ctx.fill();
+            } else if (state.config.shape === 'diamond') {
+                ctx.beginPath(); ctx.moveTo(state.playerX, py-25); ctx.lineTo(state.playerX+25, py);
+                ctx.lineTo(state.playerX, py+25); ctx.lineTo(state.playerX-25, py); ctx.fill();
+            } else {
+                ctx.fillRect(state.playerX - 20, py - 20, 40, 40);
+            }
 
+            // Draw Particles
             state.particles.forEach((p, i) => {
-                ctx.globalAlpha = p.life;
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y, 4, 4);
+                ctx.globalAlpha = p.life; ctx.fillStyle = p.color; ctx.shadowBlur = 0;
+                if (state.config.particles === 'line') ctx.fillRect(p.x, p.y + state.playerY, 1, 12);
+                else if (state.config.particles === 'dust') ctx.fillRect(p.x, p.y + state.playerY, 2, 2);
+                else ctx.fillRect(p.x, p.y + state.playerY, 4, 4);
                 p.x += p.vx; p.y += p.vy; p.vy += 0.5; p.life -= 0.02;
                 if (p.life <= 0) state.particles.splice(i, 1);
             });
 
             ctx.restore();
-
-            state.celebs.forEach((c, i) => {
-                ctx.save();
-                ctx.globalAlpha = c.alpha;
-                ctx.translate(c.x, c.y);
-                ctx.scale(c.s, c.s);
-                ctx.font = "bold 150px Syncopate";
-                ctx.fillStyle = "#fff";
-                ctx.textAlign = "center";
-                ctx.fillText(c.txt, 0, 0);
-                ctx.restore();
-                c.alpha -= 0.02; c.s += 0.05;
-                if(c.alpha <= 0) state.celebs.splice(i, 1);
-            });
-
-            requestAnimationFrame(loop);
+            if (state.active || state.paused) requestAnimationFrame(loop);
         }
     </script>
 </body>
