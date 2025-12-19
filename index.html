@@ -3,18 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>67 | FLOOR PROTOCOL</title>
+    <title>67 | FLOOR PROTOCOL (MERGED)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Syncopate:wght@700&family=JetBrains+Mono:wght@500&display=swap');
 
-        :root { --neon-blue: #00f2ff; --neon-pink: #ff007b; }
+        :root { 
+            --neon-blue: #00f2ff; 
+            --neon-pink: #ff007b; 
+        }
 
         body, html {
             margin: 0; padding: 0; width: 100%; height: 100%;
             overflow: hidden; background: #000;
             font-family: 'JetBrains Mono', monospace;
+            color: #fff;
         }
 
+        /* --- UI LAYER --- */
         #ui-layer {
             position: fixed; inset: 0; pointer-events: none; z-index: 10;
             display: flex; flex-direction: column; justify-content: space-between;
@@ -33,12 +38,12 @@
         }
 
         .animate-penalty { animation: penaltyRise 0.6s ease-out forwards; }
-
         @keyframes penaltyRise {
             0% { transform: translateY(0); opacity: 1; }
             100% { transform: translateY(-30px); opacity: 0; }
         }
 
+        /* --- BUTTONS & MODALS --- */
         .btn-next {
             background: #fff; color: #000; border: none;
             padding: 15px 40px; font-family: 'Syncopate';
@@ -53,21 +58,6 @@
         }
         .btn-ghost:hover { color: #fff; border-color: #fff; }
 
-        /* Instructions Styling */
-        .controls-hint {
-            margin-top: 30px;
-            color: #444;
-            font-size: 0.7rem;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
-        .key-box {
-            border: 1px solid #333;
-            padding: 2px 6px;
-            color: #888;
-            margin: 0 5px;
-        }
-
         #ingame-menu-btn { position: absolute; bottom: 110px; left: 40px; display: none; }
 
         .modal-overlay {
@@ -77,36 +67,31 @@
             opacity: 0; transition: opacity 0.4s ease;
         }
 
-        #start-overlay {
-            position: fixed; inset: 0; background: #000; z-index: 200; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            color: #fff; transition: opacity 0.4s ease;
-        }
-
         .modal-content {
             background: rgba(10, 10, 10, 0.98); border: 1px solid #222;
             padding: 40px; text-align: center; color: #fff; width: 90%; max-width: 500px;
         }
 
+        /* --- SETTINGS FORM --- */
         .setting-group { margin-bottom: 20px; text-align: left; }
         label { display: block; font-size: 0.6rem; color: #555; margin-bottom: 5px; text-transform: uppercase; }
         select, input[type="text"] {
-            width: 100%; background: #000; border: 1px solid #333; color: #fff; padding: 10px; font-family: 'JetBrains Mono'; outline: none;
+            width: 100%; background: #000; border: 1px solid #333; color: #fff; 
+            padding: 10px; font-family: 'JetBrains Mono'; outline: none; box-sizing: border-box;
         }
         input[type="color"] { width: 100%; height: 40px; background: none; border: 1px solid #333; cursor: pointer; }
 
+        #start-overlay {
+            position: fixed; inset: 0; background: #000; z-index: 200; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center; 
+        }
+
         canvas { display: block; image-rendering: pixelated; }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin: 30px 0;
-            text-align: left;
-        }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 30px 0; text-align: left; }
         .stat-item { border-left: 1px solid #222; padding-left: 15px; }
         .stat-item .label { color: #555; font-size: 0.6rem; text-transform: uppercase; margin-bottom: 5px; }
-        .stat-item .value { font-family: 'Syncopate'; font-size: 1.1rem; color: #fff; min-height: 1.2rem;}
+        .stat-item .value { font-family: 'Syncopate'; font-size: 1.1rem; color: #fff; }
     </style>
 </head>
 <body>
@@ -128,32 +113,21 @@
         </div>
     </div>
 
-    <div id="start-overlay">
-        <h1 style="font-family:'Syncopate'; font-size:5rem; margin:0;">67</h1>
-        <p style="letter-spacing:8px; color:var(--neon-blue); margin-bottom:40px;">FLOOR PROTOCOL</p>
-        
-        <button class="btn-next" onclick="initGame()">INITIALIZE</button>
-        <button class="btn-ghost" style="margin-top:15px;" onclick="openSettings()">SETTINGS</button>
-
-        <div class="controls-hint">
-            Use <span class="key-box">LEFT</span> and <span class="key-box">RIGHT</span> arrows to climb<br>
-            <span style="display:block; margin-top:10px; opacity:0.5;">Press <span class="key-box">R</span> to emergency reset</span>
-        </div>
-    </div>
-
     <div id="settings-overlay" class="modal-overlay">
         <div class="modal-content">
             <h2 style="font-family: 'Syncopate'; margin-top:0;">SETTINGS</h2>
-            <div class="setting-group"><label>Music Filename</label><input type="text" id="cfg-music" value="your-song-filename.mp3"></div>
+            <div class="setting-group"><label>Music Filename</label><input type="text" id="cfg-music" value="bgm.mp3"></div>
+            
             <div class="setting-group">
                 <label>Environment Style</label>
                 <select id="cfg-bg">
                     <option value="none">VOID (BLACK)</option>
-                    <option value="grid">DIGITAL HORIZON</option>
+                    <option value="grid" selected>DIGITAL HORIZON</option>
                     <option value="stars">STARFIELD</option>
                     <option value="scanlines">SCANLINES</option>
                 </select>
             </div>
+
             <div class="setting-group">
                 <label>Core Shape</label>
                 <select id="cfg-shape">
@@ -162,7 +136,27 @@
                     <option value="diamond">PRISM CORE</option>
                 </select>
             </div>
-            <button class="btn-next" onclick="saveSettings()">EXIT</button>
+
+            <div class="setting-group">
+                <label>Tail Pattern</label>
+                <select id="cfg-tail">
+                    <option value="solid">SOLID TRAIL</option>
+                    <option value="ghost" selected>GHOST TRAIL</option>
+                    <option value="wire">WIRE TRAIL</option>
+                </select>
+            </div>
+
+            <div class="setting-group">
+                <label>Particle Physics</label>
+                <select id="cfg-particles">
+                    <option value="square">DIGITAL DEBRIS</option>
+                    <option value="line">VELOCITY LINES</option>
+                    <option value="dust">NEON DUST</option>
+                </select>
+            </div>
+
+            <div class="setting-group"><label>Theme Color</label><input type="color" id="cfg-color1" value="#00f2ff"></div>
+            <button class="btn-next" onclick="saveSettings()">SAVE & EXIT</button>
         </div>
     </div>
 
@@ -185,6 +179,13 @@
             </div>
             <button class="btn-next" onclick="nextLevel()">NEXT FLOOR</button>
         </div>
+    </div>
+
+    <div id="start-overlay">
+        <h1 style="font-family:'Syncopate'; font-size:5rem; margin:0;">67</h1>
+        <p style="letter-spacing:8px; color:var(--neon-blue); margin-bottom:40px;">FLOOR PROTOCOL</p>
+        <button class="btn-next" onclick="initGame()">INITIALIZE</button>
+        <button class="btn-ghost" style="margin-top:15px;" onclick="openSettings()">SETTINGS</button>
     </div>
 
     <canvas id="gameCanvas"></canvas>
@@ -214,7 +215,14 @@
             shake: 0, tick: 0,
             animType: 'hop', hopProgress: 0,
             frameId: null,
-            config: { music: 'your-song-filename.mp3', shape: 'square', tail: 'ghost', particles: 'square', color1: '#00f2ff', bg: 'grid' }
+            config: { 
+                music: 'bgm.mp3', 
+                shape: 'square', 
+                tail: 'ghost', 
+                particles: 'square', 
+                color1: '#00f2ff', 
+                bg: 'grid' 
+            }
         };
 
         function resize() { 
@@ -227,8 +235,10 @@
         window.onresize = resize;
         resize();
 
+        /* --- BACKGROUND RENDERING --- */
         function drawBackground() {
             if (state.config.bg === 'none') return;
+            
             if (state.config.bg === 'grid') {
                 ctx.strokeStyle = state.config.color1;
                 ctx.lineWidth = 1;
@@ -269,19 +279,30 @@
             const length = targetStr.length;
             let currentIteration = 0;
             const totalSteps = 30; 
+            
             const interval = setInterval(() => {
                 let scrambled = "";
                 const progress = currentIteration / totalSteps;
+                
                 for (let i = 0; i < length; i++) {
-                    if (i < progress * length * 1.5) scrambled += targetStr[i];
-                    else scrambled += chars[Math.floor(Math.random() * chars.length)];
+                    if (i < progress * length * 1.5) {
+                        scrambled += targetStr[i];
+                    } else {
+                        scrambled += chars[Math.floor(Math.random() * chars.length)];
+                    }
                 }
+                
                 el.innerText = scrambled;
                 currentIteration++;
-                if (currentIteration > totalSteps) { el.innerText = targetStr; clearInterval(interval); }
+                
+                if (currentIteration > totalSteps) { 
+                    el.innerText = targetStr; 
+                    clearInterval(interval); 
+                }
             }, duration / totalSteps);
         }
 
+        /* --- SETTINGS LOGIC --- */
         function openSettings() {
             document.getElementById('start-overlay').style.display = 'none';
             const configMenu = document.getElementById('settings-overlay');
@@ -292,18 +313,23 @@
         function saveSettings() {
             state.config.music = document.getElementById('cfg-music').value;
             state.config.shape = document.getElementById('cfg-shape').value;
+            state.config.tail = document.getElementById('cfg-tail').value;
+            state.config.particles = document.getElementById('cfg-particles').value;
+            state.config.color1 = document.getElementById('cfg-color1').value;
             state.config.bg = document.getElementById('cfg-bg').value;
+            
+            document.documentElement.style.setProperty('--neon-blue', state.config.color1);
+            
             const configMenu = document.getElementById('settings-overlay');
             configMenu.style.opacity = '0';
             setTimeout(() => {
                 configMenu.style.display = 'none';
                 fullReset(false); 
-                const startMenu = document.getElementById('start-overlay');
-                startMenu.style.display = 'flex';
-                startMenu.style.opacity = '1';
+                document.getElementById('start-overlay').style.display = 'flex';
             }, 400);
         }
 
+        /* --- GAME ENGINE --- */
         function fullReset(keepLevel = false) {
             if (state.frameId) cancelAnimationFrame(state.frameId);
             state.frameId = null;
@@ -314,23 +340,13 @@
             state.camY = 0; state.targetCamY = 0; state.playerX = -150; state.targetX = -150;
             state.playerRot = 0; state.targetRot = 0;
             state.totalPauseOffset = 0; state.ghosts = []; state.particles = []; state.celebs = [];
-            if (keepLevel) state.level = savedLevel;
-            else state.level = 1;
+            state.level = keepLevel ? savedLevel : 1;
             bgm.pause(); bgm.currentTime = 0;
             updateUI();
         }
 
-        function quitToMenu() {
-            fullReset(false);
-            document.getElementById('pause-overlay').style.display = 'none';
-            document.getElementById('ingame-menu-btn').style.display = 'none';
-            const startMenu = document.getElementById('start-overlay');
-            startMenu.style.display = 'flex';
-            startMenu.style.opacity = '1';
-        }
-
         function togglePause() {
-            if (!state.active && !state.paused) return;
+            if (!state.active) return;
             state.paused = !state.paused;
             const el = document.getElementById('pause-overlay');
             if (state.paused) {
@@ -367,16 +383,11 @@
             state.platforms[0].side = 0; 
         }
 
-        function spawnCeleb(txt, xPct) {
-            state.celebs.push({ txt, x: canvas.width * xPct, y: canvas.height / 2, alpha: 1, s: 1 });
-        }
-
         window.addEventListener('keydown', (e) => {
             if (e.key.toLowerCase() === 'r' && state.active) { fullReset(true); initGame(); return; }
             if (!state.active || state.paused) return;
             
             let input = (e.key === 'ArrowLeft') ? 0 : (e.key === 'ArrowRight' ? 1 : -1);
-            
             if (input !== -1) {
                 if (!state.gameStarted) { state.startTime = Date.now(); state.gameStarted = true; }
                 const nextFloorIdx = state.floor + 1;
@@ -384,20 +395,13 @@
 
                 if (input === state.platforms[nextFloorIdx].side) {
                     const isNewSide = (input === 0 && state.targetX !== -150) || (input === 1 && state.targetX !== 150);
+                    state.animType = isNewSide ? 'arch' : 'hop';
                     
-                    if (isNewSide) {
-                        state.animType = 'arch';
-                        state.targetRot += (input === 1 ? 180 : -180);
-                    } else {
-                        state.animType = 'hop';
-                        state.hopProgress = 1.0; 
-                        state.targetRot += 360; 
-                    }
+                    state.targetRot += 90; 
+                    if (!isNewSide) state.hopProgress = 1.0; 
 
                     state.floor = nextFloorIdx;
                     state.streak++;
-                    if (state.streak === 6) spawnCeleb("6", 0.15);
-                    if (state.streak === 7) spawnCeleb("7", 0.85);
                     if (state.streak > state.maxStreak) state.maxStreak = state.streak;
                     state.targetX = (input === 0) ? -150 : 150;
                     state.targetCamY = state.floor * 180;
@@ -408,16 +412,13 @@
                     ui.penalty.classList.remove('animate-penalty');
                     void ui.penalty.offsetWidth; 
                     ui.penalty.classList.add('animate-penalty');
-                    state.animType = 'hop'; 
-                    state.hopProgress = 1.0;
-                    state.targetRot += 360; 
                 }
                 updateUI();
             }
         });
 
         function spawnGlitter(x, y, side) {
-            const count = 20;
+            const count = state.config.particles === 'dust' ? 40 : 20;
             const color = side === 0 ? state.config.color1 : '#ff007b';
             for(let i=0; i<count; i++) {
                 state.particles.push({
@@ -429,44 +430,16 @@
             }
         }
 
-        function updateUI() {
-            ui.level.innerText = state.level.toString().padStart(2, '0');
-            ui.floor.innerText = `${(state.floor + 1).toString().padStart(2, '0')} / 67`;
-            ui.streak.innerText = state.streak;
-        }
-
-        function triggerWin() {
-            state.active = false;
-            document.getElementById('ingame-menu-btn').style.display = 'none';
-            const rawTime = (Date.now() - state.startTime - state.totalPauseOffset) / 1000;
-            const finalTime = (rawTime + state.penaltySeconds).toFixed(2);
-            setTimeout(() => {
-                const el = document.getElementById('win-overlay');
-                el.style.display = 'flex';
-                setTimeout(() => {
-                    el.style.opacity = '1';
-                    scrambleText('res-time', finalTime + "S");
-                    scrambleText('res-streak', state.maxStreak);
-                    scrambleText('res-mistakes', state.mistakes);
-                    scrambleText('res-penalty', "+" + state.penaltySeconds + "S");
-                }, 10);
-            }, 500);
-        }
-
-        function nextLevel() {
-            state.level++;
-            document.getElementById('win-overlay').style.display = 'none';
-            ['res-time','res-streak','res-mistakes','res-penalty'].forEach(id => document.getElementById(id).innerText = "--");
-            fullReset(true); initGame();
-        }
-
+        /* --- CORE RENDERING (USES CONFIG) --- */
         function drawCore(x, y, size, rotation, isGhost = false, alpha = 1) {
             ctx.save();
             ctx.translate(x, y);
             ctx.rotate(rotation * Math.PI / 180);
             ctx.globalAlpha = alpha;
+            
             const s = size / 2;
             const color = state.targetX < 0 ? state.config.color1 : "#ff007b";
+            
             ctx.strokeStyle = isGhost ? color : "#fff";
             ctx.lineWidth = isGhost ? 1 : 2;
             ctx.shadowBlur = isGhost ? 0 : 15;
@@ -474,30 +447,42 @@
 
             if (state.config.shape === 'circle') {
                 ctx.beginPath(); ctx.arc(0, 0, s, 0, Math.PI*2); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(-s, 0); ctx.lineTo(s, 0); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, -s); ctx.lineTo(0, s); ctx.stroke();
             } else if (state.config.shape === 'diamond') {
                 ctx.beginPath();
                 ctx.moveTo(0, -s*1.2); ctx.lineTo(s*1.2, 0); ctx.lineTo(0, s*1.2); ctx.lineTo(-s*1.2, 0);
                 ctx.closePath(); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(-s*1.2, 0); ctx.lineTo(s*1.2, 0); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, -s*1.2); ctx.lineTo(0, s*1.2); ctx.stroke();
             } else {
                 ctx.strokeRect(-s, -s, size, size);
+                ctx.lineWidth = isGhost ? 0.5 : 1;
+                ctx.beginPath();
+                ctx.moveTo(-s/3, -s); ctx.lineTo(-s/3, s);
+                ctx.moveTo(s/3, -s); ctx.lineTo(s/3, s);
+                ctx.moveTo(-s, -s/3); ctx.lineTo(s, -s/3);
+                ctx.moveTo(-s, s/3); ctx.lineTo(s, s/3);
+                ctx.stroke();
             }
             ctx.restore();
         }
 
+
+
         function loop() {
-            if (!state.active && state.celebs.length === 0 && !state.paused) return;
+            if (!state.active && !state.paused) return;
 
             if (!state.paused) {
                 state.tick++;
                 state.camY += (state.targetCamY - state.camY) * 0.15;
                 state.playerX += (state.targetX - state.playerX) * 0.2;
-                state.playerRot += (state.targetRot - state.playerRot) * 0.15; 
+                state.playerRot += (state.targetRot - state.playerRot) * 0.15;
 
                 if (state.animType === 'arch') {
                     let jumpDist = Math.abs(state.targetX - state.playerX);
                     let jumpProgress = 1 - (jumpDist / 300);
                     state.playerY = -150 * 4 * jumpProgress * (1 - jumpProgress);
-                    if (jumpDist < 0.5) state.animType = 'hop';
                 } else {
                     state.playerY = -70 * Math.sin(state.hopProgress * Math.PI);
                     state.hopProgress *= 0.85; 
@@ -505,7 +490,7 @@
 
                 if (state.shake > 0) state.shake *= 0.9;
                 state.ghosts.unshift({x: state.playerX, y: state.playerY, r: state.playerRot});
-                if (state.ghosts.length > 40) state.ghosts.pop();
+                if (state.ghosts.length > 30) state.ghosts.pop();
 
                 if (state.gameStarted && state.active) {
                     const rawTime = (Date.now() - state.startTime - state.totalPauseOffset) / 1000;
@@ -516,55 +501,99 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = "#000"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
             drawBackground();
+            
+            if (state.active && state.level === 1 && state.floor === 0 && !state.paused) {
+                ctx.save();
+                const nextPlatform = state.platforms[1];
+                const isRight = nextPlatform.side === 1;
+                ctx.fillStyle = "#fff"; ctx.font = "bold 12px 'Syncopate'";
+                ctx.textAlign = isRight ? "right" : "left";
+                ctx.globalAlpha = 0.5 + Math.sin(state.tick * 0.1) * 0.3;
+                ctx.fillText(isRight ? "PRESS RIGHT ARROW →" : "← PRESS LEFT ARROW", isRight ? canvas.width - 50 : 50, canvas.height / 2);
+                ctx.restore();
+            }
+
 
             ctx.save();
             ctx.translate(canvas.width/2 + (Math.random()-0.5)*state.shake, canvas.height * 0.75 + (Math.random()-0.5)*state.shake);
             
-            // RENDERING PLATFORMS + NUMBERS
+            // Platforms
             state.platforms.forEach((p, i) => {
                 const drawY = p.y + state.camY;
                 if (drawY > -canvas.height && drawY < 400) {
                     const xPos = (p.side === 0) ? -280 : 80;
-                    const isTarget = (i === state.floor + 1);
-                    
-                    // Platform Bar
-                    ctx.fillStyle = isTarget ? "#fff" : (i === state.floor ? "#fff" : "#1a1a1a");
-                    ctx.fillRect(xPos, drawY, 200, isTarget ? 10 : 6);
-
-                    // Platform Floor Number
-                    ctx.font = "15px 'JetBrains Mono'";
-                    ctx.textAlign = (p.side === 0) ? "right" : "left";
-                    ctx.fillText((i + 1).toString().padStart(2, '0'), (p.side === 0) ? xPos - 10 : xPos + 210, drawY + 8);
+                    ctx.fillStyle = (i >= state.floor) ? "#fff" : "#1a1a1a";
+                    ctx.fillRect(xPos, drawY, 200, (i === state.floor + 1) ? 10 : 6);
                 }
             });
 
-            state.ghosts.forEach((g, i) => {
-                const ratio = (1 - i / state.ghosts.length);
-                drawCore(g.x, g.y - 20, 40 * ratio, g.r, true, 0.6 * ratio);
-            });
+            // Tail logic
+            if (state.config.tail !== 'solid') {
+                state.ghosts.forEach((g, i) => {
+                    const ratio = (1 - i / state.ghosts.length);
+                    drawCore(g.x, g.y - 20, 40 * ratio, g.r, state.config.tail === 'wire', 0.4 * ratio);
+                });
+            }
 
+            // Player
             drawCore(state.playerX, state.playerY - 20, 45, state.playerRot, false, 1);
 
+            // Particles
             for (let i = state.particles.length - 1; i >= 0; i--) {
                 const p = state.particles[i];
-                ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y + state.playerY, 4, 4);
+                ctx.globalAlpha = p.life; ctx.fillStyle = p.color; ctx.strokeStyle = p.color;
+                if (state.config.particles === 'line') {
+                    ctx.beginPath(); ctx.moveTo(p.x, p.y + state.playerY);
+                    ctx.lineTo(p.x - p.vx * 2, (p.y + state.playerY) - p.vy * 2); ctx.stroke();
+                } else if (state.config.particles === 'dust') {
+                    ctx.beginPath(); ctx.arc(p.x, p.y + state.playerY, 2, 0, Math.PI*2); ctx.fill();
+                } else { ctx.fillRect(p.x, p.y + state.playerY, 4, 4); }
                 if (!state.paused) { p.x += p.vx; p.y += p.vy; p.vy += 0.5; p.life -= 0.02; }
                 if (p.life <= 0) state.particles.splice(i, 1);
             }
             ctx.restore();
 
-            for (let i = state.celebs.length - 1; i >= 0; i--) {
-                const c = state.celebs[i];
-                ctx.save(); ctx.globalAlpha = c.alpha; ctx.translate(c.x, c.y); ctx.scale(c.s, c.s);
-                ctx.font = "bold 150px Syncopate"; ctx.fillStyle = "#fff"; ctx.textAlign = "center";
-                ctx.fillText(c.txt, 0, 0); ctx.restore();
-                if (!state.paused) { c.alpha -= 0.02; c.s += 0.05; }
-                if(c.alpha <= 0) state.celebs.splice(i, 1);
-            }
-
             state.frameId = requestAnimationFrame(loop);
+        }
+
+        function updateUI() {
+            ui.level.innerText = state.level.toString().padStart(2, '0');
+            ui.floor.innerText = `${(state.floor + 1).toString().padStart(2, '0')} / 67`;
+            ui.streak.innerText = state.streak;
+        }
+
+        function triggerWin() {
+            state.active = false;
+            document.getElementById('ingame-menu-btn').style.display = 'none';
+            
+            const rawTime = (Date.now() - state.startTime - state.totalPauseOffset) / 1000;
+            const finalTime = (rawTime + state.penaltySeconds).toFixed(2);
+            
+            const el = document.getElementById('win-overlay');
+            el.style.display = 'flex';
+            
+            setTimeout(() => {
+                el.style.opacity = '1';
+                // Scrambling only the result stats
+                scrambleText('res-time', finalTime + "S");
+                scrambleText('res-streak', state.maxStreak);
+                scrambleText('res-mistakes', state.mistakes);
+                scrambleText('res-penalty', "+" + state.penaltySeconds + "S");
+            }, 100);
+        }
+
+        function nextLevel() {
+            state.level++;
+            document.getElementById('win-overlay').style.display = 'none';
+            fullReset(true); initGame();
+        }
+
+        function quitToMenu() {
+            fullReset(false);
+            document.getElementById('pause-overlay').style.display = 'none';
+            document.getElementById('start-overlay').style.display = 'flex';
         }
     </script>
 </body>
